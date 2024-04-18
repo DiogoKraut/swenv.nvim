@@ -3,7 +3,6 @@ local M = {}
 local Path = require('plenary.path')
 local scan_dir = require('plenary.scandir').scan_dir
 local best_match = require('swenv.match').best_match
-local read_venv_name = require('swenv.project').read_venv_name
 
 local settings = require('swenv.config').settings
 
@@ -117,14 +116,14 @@ local get_conda_base_path = function()
   end
 end
 
-local get_conda_base_env = function ()
+local get_conda_base_env = function()
   local venvs = {}
-  local path = os.getenv("CONDA_EXE")
+  local path = os.getenv('CONDA_EXE')
   if path then
     table.insert(venvs, {
-      name = "base",
-      path = vim.fn.fnamemodify(path, ":p:h:h"),
-      source = "conda"
+      name = 'base',
+      path = vim.fn.fnamemodify(path, ':p:h:h'),
+      source = 'conda',
     })
   end
   return venvs
@@ -185,7 +184,6 @@ end
 
 M.auto_venv = function()
   local loaded, project_nvim = pcall(require, 'project_nvim.project')
-  local venvs = settings.get_venvs(settings.venvs_path)
   if not loaded then
     print('Error: failed to load the project_nvim.project module')
     return
@@ -193,15 +191,7 @@ M.auto_venv = function()
 
   local project_dir, _ = project_nvim.get_project_root()
   if project_dir then -- project_nvim.get_project_root might not always return a project path
-    local project_venv_name = read_venv_name(project_dir)
-    if not project_venv_name then
-      return
-    end
-    local closest_match = best_match(venvs, project_venv_name)
-    if not closest_match then
-      return
-    end
-    set_venv(closest_match)
+    set_venv(project_dir .. '/.venv')
   end
 end
 
